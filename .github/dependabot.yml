@@ -1,0 +1,82 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Agonist Development AB
+#
+# Dependabot — automated dependency updates.
+#
+# Reference: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Design decisions:
+#   - npm: weekly minor+patch grouped (low-noise); majors as separate PRs.
+#   - github-actions: monthly grouped.
+#   - Conventional-commit prefixes: chore(deps), chore(actions).
+#
+# Activates automatically on push to a GitHub-hosted repo. Until first
+# public push it sits dormant; no action items emitted.
+
+version: 2
+
+updates:
+  # ───────────────────────────────────────────────────────────────────
+  # 1. npm — weekly minor+patch grouped, majors separately
+  # ───────────────────────────────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: 'Europe/Stockholm'
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - npm
+    reviewers:
+      - governancer-foundation/maintainers
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+      include: scope
+    versioning-strategy: increase-if-necessary
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
+      typescript:
+        patterns:
+          - 'typescript'
+          - '@types/*'
+      mcp-sdk:
+        patterns:
+          - '@modelcontextprotocol/*'
+    ignore:
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
+
+  # ───────────────────────────────────────────────────────────────────
+  # 2. github-actions — monthly grouped
+  # ───────────────────────────────────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: monthly
+      day: monday
+      time: '08:00'
+      timezone: 'Europe/Stockholm'
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - github-actions
+    reviewers:
+      - governancer-foundation/maintainers
+    commit-message:
+      prefix: 'chore(actions)'
+      include: scope
+    groups:
+      actions-minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch

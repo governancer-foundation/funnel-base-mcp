@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+
+# integration scaffolding (not published)
+HOOKS-NOTE.md
+.github/SETUP-GITHUB.md
+.husky/_/
+
+# anti-leak corpus token list — never published
+.oss-ip-guard-corpus

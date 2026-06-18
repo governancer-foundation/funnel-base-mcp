@@ -1,0 +1,26 @@
+# commit-message-allowlist.txt — legitimate technical uses of vocabulary
+# otherwise flagged by a commit-message hygiene check.
+#
+# Each non-comment non-empty line is an extended-regex pattern (grep -E).
+# A hit line matching ANY of these is dropped from the report.
+#
+# IMPORTANT: use `[[:space:]]` not `\s` for whitespace (BSD-grep-portable).
+# Avoid `\b` word-boundary (uneven BSD support); rely on explicit context.
+#
+# SPDX-FileCopyrightText: 2026 Agonist Development AB
+# SPDX-License-Identifier: Apache-2.0
+
+# === Tooling install commits — legitimate to name husky / commitlint / etc.
+# when ADDING these tools to the project (one-time scaffold commit). ===
+(husky|commitlint|lint-staged|prettier|ESLint[[:space:]][0-9])[[:space:]](hook|pre-commit|commit-msg|installed|flat[[:space:]]config|for[[:space:]]per-file|for[[:space:]]conventional)
+chore\(tooling\):.*husky.*commitlint
+
+# === "conventional commits" when documenting CONTRIBUTING.md convention ===
+DCO,[[:space:]]conventional[[:space:]]commits
+conventional[[:space:]]commits.*CONTRIBUTING
+
+# === MCP protocol vocabulary — "tools", "resources", "stdio transport" are
+# the server's PUBLIC contract, not internal jargon. ===
+funnel-base://(law-texts|VALIDATION-SUMMARY)
+read-only[[:space:]]MCP[[:space:]](stdio[[:space:]])?server
+FUNNEL_BASE_ROOT[[:space:]]environment[[:space:]]variable

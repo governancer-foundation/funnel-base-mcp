@@ -1,0 +1,63 @@
+{
+  "name": "@governancer/funnel-base-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Alexander Brichkin (Agonist Development AB)",
+  "description": "MCP server that serves validated primary-source statutory text + a citation validation ledger as queryable resources and tools, so Claude Code sessions and CI agents can fetch verbatim law text and cross-check citations at write time. Bring your own corpus via FUNNEL_BASE_ROOT.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "eu-ai-act",
+    "compliance",
+    "citation-validation",
+    "statutory-text",
+    "claude"
+  ],
+  "homepage": "https://github.com/governancer-foundation/funnel-base-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/governancer-foundation/funnel-base-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/governancer-foundation/funnel-base-mcp/issues"
+  },
+  "type": "module",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "bin": {
+    "funnel-base-mcp": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "node --loader tsx src/index.ts",
+    "prepare": "husky",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"no unit tests yet — typecheck stands in\" && tsc --noEmit",
+    "lint:commit": "commitlint --from=HEAD~1 --to=HEAD"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.7.1",
+    "@commitlint/config-conventional": "^19.7.1",
+    "@types/node": "^22.0.0",
+    "husky": "^9.1.7",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

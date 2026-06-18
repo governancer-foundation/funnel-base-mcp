@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Agonist Development AB
+#
+# CI — Build / Lint / Test for @governancer/funnel-base-mcp.
+# Single npm/TypeScript package (MCP — Model Context Protocol — stdio server).
+# Build system is npm + tsc (NOT pnpm/turbo). No unit-test runner yet:
+# `tsc --noEmit` (the typecheck) doubles as the test gate.
+# Also runs the hand-authored anti-leak guard (scripts/oss-ip-guard.sh) so no
+# private funnel-base corpus / secret / internal path can ride a build to a
+# public push.
+
+name: CI
+
+on:
+  push:
+    branches: [staging, main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build / Lint / Test
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck (tsc --noEmit)
+        # No separate test runner exists yet; the strict typecheck is the
+        # correctness gate. Keep `--noEmit` so this step never writes to dist/.
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Anti-leak guard (oss-ip-guard --dir .)
+        # Sweep the whole working tree for corpus/secret/internal/trailer
+        # leaks before anything is publishable. The guard is hand-authored
+        # at scripts/oss-ip-guard.sh — CI only calls it.
+        run: bash scripts/oss-ip-guard.sh --dir .
+
+      - name: Pre-publish check (if present)
+        # Optional: only runs when the repo carries a pre-publish-check.sh.
+        # Keeps CI green before that script lands while wiring it once it does.
+        run: |
+          if [ -f scripts/pre-publish-check.sh ]; then
+            bash scripts/pre-publish-check.sh
+          else
+            echo "scripts/pre-publish-check.sh not present — skipping."
+          fi

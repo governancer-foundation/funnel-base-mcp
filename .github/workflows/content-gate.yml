@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Agonist Development AB
+#
+# content-gate — staging anti-leak audit. On every PR, compute the set of
+# changed text files and run the hand-authored guard (scripts/oss-ip-guard.sh
+# --files <changed>) over exactly those files. A negative-list match (private
+# funnel-base corpus reference, secret/credential, internal monorepo path, or
+# AI-authorship trailer) fails the check before merge.
+
+name: content-gate
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: content-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  content-gate:
+    name: Anti-leak content gate
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Compute changed text files
+        id: changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="origin/${{ github.base_ref }}"
+          git fetch origin "${{ github.base_ref }}" --depth=1 || true
+          # Exclude the guard's own script + build output — oss-ip-guard.sh
+          # carries the forbidden literals as its detection signatures and must
+          # not flag itself (it self-whitelists, but we skip it here anyway).
+          files=$(git diff --name-only --diff-filter=ACM "$base"...HEAD \
+            | grep -E '\.(md|mdx|ts|tsx|json|yml|yaml|html|css|sh|txt|toml)$' \
+            | grep -vE '/dist/|/node_modules/|package-lock\.json|scripts/oss-ip-guard\.sh' \
+            | tr '\n' ' ')
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+          echo "Scanning: ${files:-<none>}"
+
+      - name: Run oss-ip-guard over changed files
+        if: steps.changed.outputs.files != ''
+        run: bash scripts/oss-ip-guard.sh --files ${{ steps.changed.outputs.files }}
