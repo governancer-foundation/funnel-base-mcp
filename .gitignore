@@ -10,3 +10,6 @@ HOOKS-NOTE.md
 
 # anti-leak corpus token list — never published
 .oss-ip-guard-corpus
+
+# local audit artifacts — review packets + release-pipeline logs/status
+var/
