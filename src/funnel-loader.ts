@@ -218,13 +218,15 @@ export async function listFunnelFiles(): Promise<string[]> {
  */
 export function extractCitations(markdown: string): string[] {
   const patterns: RegExp[] = [
-    // EU article citations
-    /\bArt(?:icle)?\.\s+\d+(?:\(\d+\)(?:\(\w\))?)?/g,
+    // EU article citations. The period is optional so the spelled-out form
+    // ("Article 99") is recognised alongside the abbreviated one ("Art. 50(2)").
+    /\bArt(?:icle)?\.?\s+\d+(?:\(\d+\)(?:\(\w\))?)?/g,
     /\bAnnex\s+[IVX]+/gi,
     // US CFR
     /\b\d+\s+CFR\s+(?:Part\s+)?\d+(?:\.\d+)?(?:\(\w+\))?/g,
-    // US Code
-    /\b\d+\s+USC\s+§?\s?\d+(?:\(\w\))?/g,
+    // US Code. Section numbers may carry a trailing letter suffix that is part
+    // of the section itself ("20 USC § 1232g"), not a sub-paragraph.
+    /\b\d+\s+USC\s+§?\s?\d+[a-z]?(?:\(\w\))?/g,
     /\b18\s+USC\s+2257/g,
     // Sweden Brottsbalken
     /\bBrB\s+\d+:\d+/g,
@@ -236,8 +238,9 @@ export function extractCitations(markdown: string): string[] {
     // UK OSA section numbers
     /\bs\.\s+\d+(?:\(\d+\))?/g,
     /\bSchedule\s+\d+(?:\s+¶\d+(?:\(\d+\))?)?/gi,
-    // California codes
-    /\b§\s?226\d{2}/g,
+    // California codes. No leading \b: the section sign is not a word
+    // character, so a word boundary before it never matches after whitespace.
+    /§\s?226\d{2}/g,
     /\bCal\.\s+(?:Bus|Health|Civil|Labor)/g,
     // US state bill numbers
     /\b(?:HB|SB|AB)\s+\d+(?:-\d+)?/g,

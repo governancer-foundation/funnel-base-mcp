@@ -13,3 +13,6 @@ HOOKS-NOTE.md
 
 # local audit artifacts — review packets + release-pipeline logs/status
 var/
+
+# coverage output (vitest --coverage)
+coverage/

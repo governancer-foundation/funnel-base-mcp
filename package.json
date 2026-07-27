@@ -40,22 +40,26 @@
     "start": "node dist/index.js",
     "dev": "node --loader tsx src/index.ts",
     "prepare": "husky",
-    "typecheck": "tsc --noEmit",
-    "test": "echo \"no unit tests yet — typecheck stands in\" && tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint:commit": "commitlint --from=HEAD~1 --to=HEAD"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "zod": "^3.23.0",
-    "gray-matter": "^4.0.3"
+    "gray-matter": "^4.0.3",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.7.1",
     "@commitlint/config-conventional": "^19.7.1",
     "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^3.2.7",
     "husky": "^9.1.7",
     "tsx": "^4.19.0",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vitest": "^3.2.7"
   },
   "engines": {
     "node": ">=20.0.0"
