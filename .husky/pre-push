@@ -68,7 +68,10 @@ if [ "$IS_PUBLIC" = "1" ]; then
       # Deletion — nothing lands.
       [ "$LOCAL_SHA" = "$ZERO" ] && continue
       if [ "$REMOTE_SHA" = "$ZERO" ]; then
-        PENDING=$(git rev-list "$LOCAL_SHA" --count 2>/dev/null || echo 0)
+        # A new ref. What lands is what the remote does not already hold, so
+        # pointing a fresh branch at a commit that is already published adds
+        # nothing — counting its whole ancestry would block that.
+        PENDING=$(git rev-list "$LOCAL_SHA" --not --remotes="$REMOTE_NAME" --count 2>/dev/null || echo 0)
       else
         PENDING=$(git rev-list "$REMOTE_SHA..$LOCAL_SHA" --count 2>/dev/null || echo 0)
       fi
