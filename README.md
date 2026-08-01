@@ -49,13 +49,13 @@ The loader reads (all parts optional):
 ## Install
 
 ```bash
-npm install -g @governancer-foundation/funnel-base-mcp
+npm install -g @governancer/funnel-base-mcp
 ```
 
 Or run it without installing:
 
 ```bash
-FUNNEL_BASE_ROOT=/path/to/your/corpus npx @governancer-foundation/funnel-base-mcp
+FUNNEL_BASE_ROOT=/path/to/your/corpus npx @governancer/funnel-base-mcp
 ```
 
 To work on the server itself, build from source instead:
@@ -87,6 +87,20 @@ The server speaks the MCP **stdio** transport — no HTTP endpoint, no public at
 
 - When editing any compliance/PRD/vertical markdown, call `validate_citation` on the proposed text **before** committing.
 - When a specific statute is in play, call `get_statute(slug)` to read verbatim primary text rather than paraphrasing.
+
+## Tests
+
+```bash
+npm test          # vitest, one pass
+npm run test:watch
+npm run typecheck # source and specs
+```
+
+The suite runs on a synthetic corpus built in a temp directory, so it needs no
+corpus of its own. It covers the citation scanner per jurisdiction, the loader's
+filesystem behaviour including path-traversal refusal, and the MCP surface
+end-to-end — a real client driving a real server over an in-memory transport.
+Continuous integration additionally smoke-tests the built binary over stdio.
 
 ## What this server explicitly does NOT do
 

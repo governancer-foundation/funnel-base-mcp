@@ -67,17 +67,30 @@ collect_staged() {  # added lines of the staged diff, excluding this guard itsel
   git diff --cached --no-color -- . ':(exclude)*oss-ip-guard.sh' 2>/dev/null | grep -E '^\+' | sed 's/^+//'
 }
 
-collect_dir() {  # $1 = dir; cat all text-ish files, skipping vcs/build/binaries.
-  # cd first so the ==FILE== headers carry relative paths. Skips this guard itself
-  # (a leak-detector necessarily contains the patterns it detects) and any git-ignored
-  # file (scaffolding/build that is never published).
+collect_dir() {  # $1 = dir; cat the PUBLISHABLE text files only.
+  # Scope note: this scans the file set that can actually reach the public
+  # repository, not the whole working tree. The canonical tree also carries the
+  # release machinery, the orchestration rules and the operator manual, which
+  # legitimately name local paths and the private remotes — sweeping those in
+  # produces guaranteed hits and trains the operator to ignore a red gate. The
+  # set below mirrors the allowlist in sync-canonical-to-public.sh; the two must
+  # be changed together. In a public clone every file is publishable, so the
+  # filter is a no-op there.
+  #
+  # Skips this guard itself (a leak-detector necessarily contains the patterns
+  # it detects) and any git-ignored file.
   ( cd "$1" 2>/dev/null || return 0
-    find . -type f \
-      \( -name '*.ts' -o -name '*.js' -o -name '*.json' -o -name '*.md' -o -name '*.sh' \
-         -o -name '*.yml' -o -name '*.yaml' -o -name '*.txt' -o -name '*.toml' \) \
-      -not -path '*/node_modules/*' -not -path '*/.git/*' -not -path '*/dist/*' \
-      -not -name 'oss-ip-guard.sh' 2>/dev/null \
-    | while IFS= read -r f; do
+    { find ./src ./test ./.github -type f \
+        \( -name '*.ts' -o -name '*.js' -o -name '*.json' -o -name '*.md' -o -name '*.sh' \
+           -o -name '*.yml' -o -name '*.yaml' -o -name '*.txt' -o -name '*.toml' \) \
+        -not -path '*/node_modules/*' -not -path '*/dist/*' 2>/dev/null
+      for f in README.md LICENSE NOTICE CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md \
+               GOVERNANCE.md CHANGELOG.md REUSE.toml package.json tsconfig.json \
+               tsconfig.test.json vitest.config.ts .gitignore .gitattributes \
+               .npmrc .editorconfig; do
+        [ -f "./$f" ] && printf './%s\n' "$f"
+      done
+    } | while IFS= read -r f; do
         git check-ignore -q "$f" 2>/dev/null && continue
         printf "\n==FILE %s==\n" "$f"; cat "$f"
       done )

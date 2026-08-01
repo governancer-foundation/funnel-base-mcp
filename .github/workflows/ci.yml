@@ -3,8 +3,7 @@
 #
 # CI — Build / Lint / Test for @governancer-foundation/funnel-base-mcp.
 # Single npm/TypeScript package (MCP — Model Context Protocol — stdio server).
-# Build system is npm + tsc (NOT pnpm/turbo). No unit-test runner yet:
-# `tsc --noEmit` (the typecheck) doubles as the test gate.
+# Build system is npm + tsc (NOT pnpm/turbo). Tests run on vitest.
 # Also runs the hand-authored anti-leak guard (scripts/oss-ip-guard.sh) so no
 # private funnel-base corpus / secret / internal path can ride a build to a
 # public push.
@@ -45,13 +44,22 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Typecheck (tsc --noEmit)
-        # No separate test runner exists yet; the strict typecheck is the
-        # correctness gate. Keep `--noEmit` so this step never writes to dist/.
-        run: npx tsc --noEmit
+      - name: Typecheck (source + specs)
+        # Keep `--noEmit` so this step never writes to dist/.
+        run: npm run typecheck
+
+      - name: Test (vitest)
+        run: npm test
 
       - name: Build
         run: npm run build
+
+      - name: Smoke — the built server answers an initialize request
+        # Guards the executable entrypoint, which the unit suite does not
+        # cover: it drives the real binary over stdio the way a client would.
+        run: |
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"ci-smoke","version":"0"}}}' \
+            | node dist/index.js | grep -q '"serverInfo"'
 
       - name: Anti-leak guard (oss-ip-guard --dir .)
         # Sweep the whole working tree for corpus/secret/internal/trailer
