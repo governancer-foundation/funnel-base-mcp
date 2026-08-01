@@ -29,14 +29,21 @@
 REMOTE_NAME="${1:-origin}"
 REMOTE_URL="${2:-}"
 
-# ── Public-remote detection ─────────────────────────────────────────────────
-# Matches the governancer-foundation org on any of the URL shapes git may pass:
-#   git@github-...:governancer-foundation/...     (per-account SSH alias)
-#   git@github.com:governancer-foundation/...     (plain SSH)
-#   https://github.com/governancer-foundation/... (HTTPS)
+# ── Published-remote detection ──────────────────────────────────────────────
+# The organisation hosts more than one repository, and only the published one
+# is subject to the one-commit-per-push discipline. Matching the organisation
+# alone also caught the internal mirrors, where landing a batch is the intended
+# workflow — and the block was unavoidable, because the count below is taken
+# from the branch, so pushing the commits one at a time did not clear it.
+#
+# Match the published repository by name, on any URL shape git may pass:
+#   git@github-...:governancer-foundation/<repo>.git   (per-account SSH alias)
+#   git@github.com:governancer-foundation/<repo>.git   (plain SSH)
+#   https://github.com/governancer-foundation/<repo>   (HTTPS)
+PUBLISHED_REPO="${PUBLISHED_REPO:-funnel-base-mcp}"
 IS_PUBLIC=0
 case "$REMOTE_URL" in
-  *:governancer-foundation/*|*github.com:governancer-foundation/*|*github.com/governancer-foundation/*|*github-governancer-foundation:*)
+  *governancer-foundation/"$PUBLISHED_REPO"|*governancer-foundation/"$PUBLISHED_REPO".git)
     IS_PUBLIC=1
     ;;
 esac
@@ -45,21 +52,37 @@ if [ "$IS_PUBLIC" = "1" ]; then
   echo "pre-push: public remote ($REMOTE_URL) — full checklist"
 
   # ── Gate 1: ONE-COMMIT-PER-PUSH (anti-bump discipline) ────────────────────
-  # Each push to the public remote may land at most one new commit. Set
-  # GIT_PUSH_LEAK_SCRUB=1 to bypass for the documented filter-branch /
-  # history-rewrite leak-scrub exception.
+  # Each push to the published remote may land at most one new commit.
+  #
+  # Count what is actually being pushed, from the ref pairs git writes on
+  # stdin, rather than the branch's distance from its upstream. Those differ
+  # whenever a specific commit is pushed rather than the branch tip — exactly
+  # the single-commit trickle this gate is meant to permit — and taking the
+  # branch distance blocked the trickle it recommends.
+  #
+  # Each stdin line is: <local ref> <local sha> <remote ref> <remote sha>
+  # Set GIT_PUSH_LEAK_SCRUB=1 to bypass for a documented history rewrite.
   if [ "${GIT_PUSH_LEAK_SCRUB:-0}" != "1" ]; then
-    PENDING=$(git rev-list "@{push}..HEAD" --count 2>/dev/null || echo 0)
-    if [ "$PENDING" -gt 1 ]; then
-      echo "" >&2
-      echo "pre-push BLOCKED — $PENDING commits would land in one push." >&2
-      echo "    The public repo enforces one commit per push. Use a" >&2
-      echo "    single-commit trickle:" >&2
-      echo "      git push $REMOTE_NAME <oldest-unpushed-sha>:refs/heads/<branch>" >&2
-      echo "    Or, for a documented history-rewrite leak-scrub:" >&2
-      echo "      GIT_PUSH_LEAK_SCRUB=1 git push ..." >&2
-      exit 1
-    fi
+    ZERO="0000000000000000000000000000000000000000"
+    while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+      # Deletion — nothing lands.
+      [ "$LOCAL_SHA" = "$ZERO" ] && continue
+      if [ "$REMOTE_SHA" = "$ZERO" ]; then
+        PENDING=$(git rev-list "$LOCAL_SHA" --count 2>/dev/null || echo 0)
+      else
+        PENDING=$(git rev-list "$REMOTE_SHA..$LOCAL_SHA" --count 2>/dev/null || echo 0)
+      fi
+      if [ "$PENDING" -gt 1 ]; then
+        echo "" >&2
+        echo "pre-push BLOCKED — $PENDING commits would land on $REMOTE_REF in one push." >&2
+        echo "    The published repo takes one commit per push. Push the oldest" >&2
+        echo "    unpushed commit by name, then the next:" >&2
+        echo "      git push $REMOTE_NAME <sha>:$REMOTE_REF" >&2
+        echo "    Or, for a documented history rewrite:" >&2
+        echo "      GIT_PUSH_LEAK_SCRUB=1 git push ..." >&2
+        exit 1
+      fi
+    done
   fi
 
   # ── Gate 2: full-tree anti-leak sweep ─────────────────────────────────────
