@@ -69,7 +69,7 @@ quo.
 
 - Versions follow [Semantic Versioning 2.0.0](https://semver.org/).
 - Releases are tagged in git, published to GitHub Releases, and (when the package
-  is marked publishable) pushed to npm as `@governancer/funnel-base-mcp` with npm
+  is marked publishable) pushed to npm as `@governancer-foundation/funnel-base-mcp` with npm
   provenance.
 - All **code** is released under the **Apache License 2.0**. SPDX identifiers are
   tracked per-file and mapped in `REUSE.toml` (REUSE 3.3).
@@ -129,4 +129,4 @@ For the project's working history, see the public commit log at
 
 | Version | Date | Author | Change |
 |---|---|---|---|
-| v0.1 | 2026-06-17 | Alexander Brichkin | Initial governance document (adapted from ariada/ADOPTA for the single-package `@governancer/funnel-base-mcp`). |
+| v0.1 | 2026-06-17 | Alexander Brichkin | Initial governance document (adapted from ariada/ADOPTA for the single-package `@governancer-foundation/funnel-base-mcp`). |

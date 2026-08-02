@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # SPDX-FileCopyrightText: 2026 Agonist Development AB
 #
-# CI — Build / Lint / Test for @governancer/funnel-base-mcp.
+# CI — Build / Lint / Test for @governancer-foundation/funnel-base-mcp.
 # Single npm/TypeScript package (MCP — Model Context Protocol — stdio server).
 # Build system is npm + tsc (NOT pnpm/turbo). No unit-test runner yet:
 # `tsc --noEmit` (the typecheck) doubles as the test gate.

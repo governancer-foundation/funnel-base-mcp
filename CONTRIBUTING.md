@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Agonist Development AB -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# Contributing to `@governancer/funnel-base-mcp`
+# Contributing to `@governancer-foundation/funnel-base-mcp`
 
 Thanks for your interest in contributing! This is a single npm/TypeScript
 package — an **MCP (Model Context Protocol — the open JSON-RPC tool/resource

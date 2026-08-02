@@ -1,5 +1,5 @@
 version = 1
-SPDX-PackageName = "@governancer/funnel-base-mcp"
+SPDX-PackageName = "@governancer-foundation/funnel-base-mcp"
 SPDX-PackageSupplier = "Agonist Development AB (Sweden, org.nr 559452-5726)"
 SPDX-PackageDownloadLocation = "https://github.com/governancer-foundation/funnel-base-mcp"
 

@@ -13,7 +13,7 @@ For security vulnerabilities, DO NOT use this form — see SECURITY.md
 
 ## Version
 
-<!-- `npm ls @governancer/funnel-base-mcp` output, or the commit SHA you built from -->
+<!-- `npm ls @governancer-foundation/funnel-base-mcp` output, or the commit SHA you built from -->
 
 ## What happened?
 

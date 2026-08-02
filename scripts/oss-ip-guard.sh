@@ -54,7 +54,7 @@ BLOCKLIST="($(IFS='|'; printf '%s' "${_parts[*]}"))"
 # + the guard's own identifiers. FUNNEL_BASE_ROOT / funnel-base:// are intentionally
 # NOT whitelisted (the legit interfaces funnel-base://law-texts and
 # funnel-base://VALIDATION-SUMMARY do not match the refined block list anyway).
-WHITELIST='@governancer/funnel-base-mcp|\.env\.example|oss-ip-guard|negative-list|BLOCK_CORPUS|BLOCK_INTERNAL|BLOCK_SECRET|BLOCK_TRAILER|WHITELIST'
+WHITELIST='@governancer-foundation/funnel-base-mcp|\.env\.example|oss-ip-guard|negative-list|BLOCK_CORPUS|BLOCK_INTERNAL|BLOCK_SECRET|BLOCK_TRAILER|WHITELIST'
 
 scan_content() {  # reads stdin, prints offending "line:match" rows, returns 1 if any
   local hits

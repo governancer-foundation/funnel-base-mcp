@@ -9,7 +9,7 @@
 
 Email **security@governancer.com** _(to-confirm: this mailbox must be provisioned and monitored before first public release)_ with:
 
-1. Affected version(s) of `@governancer/funnel-base-mcp`
+1. Affected version(s) of `@governancer-foundation/funnel-base-mcp`
 2. Reproduction steps
 3. Impact assessment (severity, exploitability)
 4. Optional: suggested fix or patch
@@ -18,7 +18,7 @@ If you prefer encrypted communication, request our PGP key in the first email an
 
 ## Threat model (what this server is)
 
-`@governancer/funnel-base-mcp` is a **read-only MCP stdio server**. It:
+`@governancer-foundation/funnel-base-mcp` is a **read-only MCP stdio server**. It:
 
 - makes **no network calls** (no LLM calls, no internet egress);
 - **never writes** to the corpus or anywhere else;

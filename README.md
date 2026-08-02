@@ -1,11 +1,11 @@
-# @governancer/funnel-base-mcp
+# @governancer-foundation/funnel-base-mcp
 
 [![CI](https://github.com/governancer-foundation/funnel-base-mcp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/governancer-foundation/funnel-base-mcp/actions/workflows/ci.yml)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/governancer-foundation/funnel-base-mcp/badge)](https://scorecard.dev/viewer/?uri=github.com/governancer-foundation/funnel-base-mcp)
 [![gitleaks](https://github.com/governancer-foundation/funnel-base-mcp/actions/workflows/gitleaks.yml/badge.svg?branch=main)](https://github.com/governancer-foundation/funnel-base-mcp/actions/workflows/gitleaks.yml)
 [![REUSE compliant](https://img.shields.io/badge/REUSE-compliant-brightgreen.svg)](https://api.reuse.software/info/github.com/governancer-foundation/funnel-base-mcp)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
-[![npm version](https://img.shields.io/npm/v/@governancer/funnel-base-mcp.svg)](https://www.npmjs.com/package/@governancer/funnel-base-mcp)
+[![npm version](https://img.shields.io/npm/v/@governancer-foundation/funnel-base-mcp.svg)](https://www.npmjs.com/package/@governancer-foundation/funnel-base-mcp)
 
 > Fetch *verbatim* law text and cross-check statutory citations at write time — a stdio MCP server, zero network egress, you bring your own corpus.
 
@@ -46,7 +46,19 @@ The loader reads (all parts optional):
         └── validation.md      # per-claim validation status
 ```
 
-## Setup
+## Install
+
+```bash
+npm install -g @governancer-foundation/funnel-base-mcp
+```
+
+Or run it without installing:
+
+```bash
+FUNNEL_BASE_ROOT=/path/to/your/corpus npx @governancer-foundation/funnel-base-mcp
+```
+
+To work on the server itself, build from source instead:
 
 ```bash
 npm install
@@ -60,7 +72,7 @@ Wire it into Claude Code via `.mcp.json`, pointing `FUNNEL_BASE_ROOT` at your co
   "mcpServers": {
     "funnel-base": {
       "command": "node",
-      "args": ["./node_modules/@governancer/funnel-base-mcp/dist/index.js"],
+      "args": ["./node_modules/@governancer-foundation/funnel-base-mcp/dist/index.js"],
       "env": {
         "FUNNEL_BASE_ROOT": "/path/to/your/funnel-base"
       }
