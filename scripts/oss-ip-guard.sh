@@ -63,8 +63,13 @@ scan_content() {  # reads stdin, prints offending "line:match" rows, returns 1 i
   return 0
 }
 
-collect_staged() {  # added lines of the staged diff, excluding this guard itself
-  git diff --cached --no-color -- . ':(exclude)*oss-ip-guard.sh' 2>/dev/null | grep -E '^\+' | sed 's/^+//'
+collect_staged() {  # added lines of the staged diff
+  # Skip the files whose job is to enumerate the forbidden patterns: they
+  # necessarily contain them, so scanning them reports the detector as the
+  # leak. Both are internal tooling that never reaches the published tree.
+  git diff --cached --no-color -- . \
+    ':(exclude)*oss-ip-guard.sh' \
+    ':(exclude)*release-pipeline.sh' 2>/dev/null | grep -E '^\+' | sed 's/^+//'
 }
 
 collect_dir() {  # $1 = dir; cat the PUBLISHABLE text files only.
