@@ -34,7 +34,7 @@ jobs:
       security-events: write # for SARIF upload to code-scanning
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0 # full history for the scheduled scan
           persist-credentials: false
@@ -63,7 +63,7 @@ jobs:
       - name: Upload SARIF
         continue-on-error: true  # SARIF upload needs code-scanning (GHAS); on a private repo the scan is still the gate
         if: always() && hashFiles('gitleaks.sarif') != ''
-        uses: github/codeql-action/upload-sarif@4e828ff8d448a8a6e532957b1811f387a63867e8 # v3.29.0
+        uses: github/codeql-action/upload-sarif@4187e74d05793876e9989daffde9c3e66b4acd07 # v3.29.0
         with:
           sarif_file: gitleaks.sarif
           category: gitleaks
