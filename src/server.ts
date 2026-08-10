@@ -41,6 +41,7 @@ import { z } from "zod";
 
 import {
   FUNNEL_BASE_ROOT,
+  citationMentionedIn,
   extractCitations,
   listFunnelFiles,
   listLawTextSlugs,
@@ -292,9 +293,10 @@ export function createServer(): Server {
           const lines: string[] = [];
           lines.push(`# Citation scan: ${citations.length} candidates\n`);
           for (const c of citations) {
-            const summaryMatch = summary?.content.includes(c)
-              ? "✓ mentioned in VALIDATION-SUMMARY"
-              : "— not in VALIDATION-SUMMARY";
+            const summaryMatch =
+              summary !== null && citationMentionedIn(summary.content, c)
+                ? "✓ mentioned in VALIDATION-SUMMARY"
+                : "— not in VALIDATION-SUMMARY";
             lines.push(`- \`${c}\`  ${summaryMatch}`);
           }
           lines.push(

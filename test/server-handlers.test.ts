@@ -173,6 +173,19 @@ describe("tools/call — validate_citation", () => {
     expect(text).toContain("not in VALIDATION-SUMMARY");
   });
 
+  it("does not claim ledger coverage for an article when only a sub-paragraph is listed", async () => {
+    // The ledger fixture carries Art. 50(2). A draft citing the article as a
+    // whole must not come back looking checked.
+    const text = textOf(
+      await client.callTool({
+        name: "validate_citation",
+        arguments: { text: "The duty in Art. 50 applies." },
+      }),
+    );
+    expect(text).toContain("Art. 50");
+    expect(text).toContain("not in VALIDATION-SUMMARY");
+  });
+
   it("says so plainly when no citation is recognised", async () => {
     const text = textOf(
       await client.callTool({

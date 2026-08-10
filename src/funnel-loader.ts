@@ -216,6 +216,24 @@ export async function listFunnelFiles(): Promise<string[]> {
  *   - California: "§22605", "CA SB 243"
  *   - Texas/CO/etc state bills: "HB 1181", "SB 24-205"
  */
+/**
+ * Whether `text` mentions `citation` as a citation in its own right.
+ *
+ * A plain substring test is wrong here, and wrong in the direction that
+ * matters: "Art. 50" occurs inside "Art. 50(2)", so a ledger covering only the
+ * sub-paragraph would report the whole article as checked. The scanner makes
+ * that collision routine — it yields both "Art. 612" and "Art. 612-quater" for
+ * a single Italian citation — so the bare prefix would always claim coverage
+ * it does not have.
+ *
+ * A mention therefore may not continue into a longer citation (a following
+ * digit, letter, opening parenthesis or hyphen) nor sit inside a larger token.
+ */
+export function citationMentionedIn(text: string, citation: string): boolean {
+  const escaped = citation.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?<![\\w§])${escaped}(?![\\w(\\-])`).test(text);
+}
+
 export function extractCitations(markdown: string): string[] {
   const patterns: RegExp[] = [
     // EU article citations. The period is optional so the spelled-out form

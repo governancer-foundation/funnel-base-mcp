@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { extractCitations } from "../src/funnel-loader.js";
+import { citationMentionedIn, extractCitations } from "../src/funnel-loader.js";
 
 describe("extractCitations — EU acts", () => {
   it("recognises the abbreviated article form with a sub-paragraph", () => {
@@ -120,5 +120,56 @@ describe("extractCitations — result shape", () => {
     const first = extractCitations("Art. 50(2)");
     const second = extractCitations("Art. 50(2)");
     expect(second).toEqual(first);
+  });
+});
+
+describe("citationMentionedIn — a mention must stand on its own", () => {
+  const ledger = [
+    "# Validation summary",
+    "",
+    "- `Art. 50(2)` — CONFIRMED",
+    "- `Art. 612-quater` — CORRECTED",
+    "- `SFS 2025:586` — CONFIRMED",
+    "- `20 USC § 1232g` — UNVERIFIABLE",
+  ].join("\n");
+
+  it("finds a citation the ledger actually carries", () => {
+    expect(citationMentionedIn(ledger, "Art. 50(2)")).toBe(true);
+  });
+
+  it("does not report an article as covered when only its sub-paragraph is", () => {
+    // The whole point: "Art. 50" occurs inside "Art. 50(2)", but the ledger
+    // says nothing about the article as a whole.
+    expect(citationMentionedIn(ledger, "Art. 50")).toBe(false);
+  });
+
+  it("does not report a numeric prefix of a bis/quater article as covered", () => {
+    // The scanner yields both forms for one Italian citation, so this pair
+    // occurs on every such scan.
+    expect(citationMentionedIn(ledger, "Art. 612-quater")).toBe(true);
+    expect(citationMentionedIn(ledger, "Art. 612")).toBe(false);
+  });
+
+  it("does not truncate a US Code section to a shorter one", () => {
+    expect(citationMentionedIn(ledger, "20 USC § 1232g")).toBe(true);
+    expect(citationMentionedIn(ledger, "20 USC § 1232")).toBe(false);
+  });
+
+  it("does not match an SFS number that is a prefix of another", () => {
+    expect(citationMentionedIn(ledger, "SFS 2025:58")).toBe(false);
+  });
+
+  it("matches at the end of a line and before punctuation", () => {
+    expect(citationMentionedIn("checked: Art. 99.", "Art. 99")).toBe(true);
+    expect(citationMentionedIn("checked: Art. 99", "Art. 99")).toBe(true);
+  });
+
+  it("treats regex metacharacters in a citation as literal text", () => {
+    expect(citationMentionedIn("see §22605 today", "§22605")).toBe(true);
+    expect(citationMentionedIn("see 45 CFR 164.504(e) today", "45 CFR 164.504(e)")).toBe(true);
+  });
+
+  it("returns false against empty text", () => {
+    expect(citationMentionedIn("", "Art. 50(2)")).toBe(false);
   });
 });
