@@ -1,6 +1,6 @@
 {
   "name": "@governancer-foundation/funnel-base-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "Apache-2.0",
   "author": "Alexander Brichkin (Agonist Development AB)",
   "description": "MCP server that serves validated primary-source statutory text + a citation validation ledger as queryable resources and tools, so Claude Code sessions and CI agents can fetch verbatim law text and cross-check citations at write time. Bring your own corpus via FUNNEL_BASE_ROOT.",

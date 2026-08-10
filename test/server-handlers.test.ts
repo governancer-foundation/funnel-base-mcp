@@ -5,7 +5,7 @@
  * server over an in-memory transport, so every assertion below travels the
  * same request/response path a Claude Code session would use.
  */
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -221,5 +221,18 @@ describe("tools/call — unknown tool", () => {
     const result = await client.callTool({ name: "no_such_tool", arguments: {} });
     expect(isError(result)).toBe(true);
     expect(textOf(result)).toContain("Unknown tool");
+  });
+});
+
+describe("advertised version", () => {
+  it("matches the package manifest", async () => {
+    // The server reports this version to every client that connects. It is a
+    // separate constant from the manifest, so nothing but this test stops the
+    // two drifting apart at the next release.
+    const { SERVER_VERSION } = await import("../src/server.js");
+    const pkg = JSON.parse(
+      await readFile(new URL("../package.json", import.meta.url), "utf8"),
+    ) as { version: string };
+    expect(SERVER_VERSION).toBe(pkg.version);
   });
 });
