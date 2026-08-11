@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Agonist Development AB
+#
+# Licence policy — fail the build on a dependency licence the project will not
+# accept. The contribution rules already say a copyleft or source-available
+# dependency needs deliberate review before merge; until now nothing enforced
+# it, so the rule relied on the maintainer noticing.
+#
+# That is the wrong place to rely on attention. This package is imported into
+# other people's compliance paths, and a licence obligation acquired by
+# accident is one they inherit without being asked.
+
+name: licence-policy
+
+on:
+  push:
+    branches: [staging, main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: licence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  licences:
+    name: Dependency licences
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Check every dependency licence against the policy
+        run: bash scripts/check-licences.sh
